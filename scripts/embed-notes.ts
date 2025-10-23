@@ -138,7 +138,7 @@ function parseArgs(): CLIOptions {
  */
 function printUsage(): void {
   console.log(`
-Usage: ts-node scripts/embed-notes.ts [options]
+Usage: bun scripts/embed-notes.ts [options]
 
 Options:
   -v, --vault-path <path>     Path to vault/notes directory (required)
@@ -154,9 +154,10 @@ Environment Variables:
   OPENAI_API_KEY              OpenAI API key
 
 Examples:
-  ts-node scripts/embed-notes.ts -v ./my-vault -o embeddings.jsonl
-  ts-node scripts/embed-notes.ts -v ./notes -o out.jsonl --model text-embedding-3-large
-  ts-node scripts/embed-notes.ts -v ./vault -o embeddings.jsonl --exclude "archive/**,drafts/**"
+  bun scripts/embed-notes.ts -v ./my-vault -o embeddings.jsonl
+  bun scripts/embed-notes.ts -v ./notes -o out.jsonl --model text-embedding-3-large
+  bun scripts/embed-notes.ts -v ./vault -o embeddings.jsonl --exclude "archive/**,drafts/**"
+  ./scripts/embed-notes.sh -v ./vault -o embeddings.jsonl
 `);
 }
 
