@@ -56,6 +56,16 @@ bun scripts/embed-notes.ts \
   --model text-embedding-3-large
 ```
 
+### With Inclusion Patterns
+
+```bash
+# Only process files matching specific patterns
+bun scripts/embed-notes.ts \
+  --vault-path ./vault \
+  --output embeddings.jsonl \
+  --include "projects/**,notes/**"
+```
+
 ### With Exclusion Patterns
 
 ```bash
@@ -63,6 +73,17 @@ bun scripts/embed-notes.ts \
   --vault-path ./vault \
   --output embeddings.jsonl \
   --exclude "archive/**,drafts/**,.obsidian/**"
+```
+
+### With Both Include and Exclude
+
+```bash
+# Process only files in specific folders, but exclude archives
+bun scripts/embed-notes.ts \
+  --vault-path ./vault \
+  --output embeddings.jsonl \
+  --include "work/**,projects/**" \
+  --exclude "**/archive/**,**/drafts/**"
 ```
 
 ### All Options
@@ -74,6 +95,7 @@ bun scripts/embed-notes.ts \
   --api-key sk-... \
   --model text-embedding-3-small \
   --batch-size 100 \
+  --include "docs/**,notes/**" \
   --exclude "archive/**,*.tmp"
 ```
 

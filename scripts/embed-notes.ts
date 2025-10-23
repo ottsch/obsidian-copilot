@@ -164,8 +164,24 @@ Examples:
 /**
  * Recursively find all markdown files in a directory
  */
-function findMarkdownFiles(dir: string, exclude: string[] = []): string[] {
+function findMarkdownFiles(
+  dir: string,
+  exclude: string[] = [],
+  include: string[] = []
+): string[] {
   const files: string[] = [];
+
+  // Log active patterns for transparency
+  if (include.length > 0) {
+    console.log(`  Include patterns: ${include.join(', ')}`);
+  }
+  if (exclude.length > 0) {
+    console.log(`  Exclude patterns: ${exclude.join(', ')}`);
+  }
+
+  // Normalize patterns to use forward slashes for consistent matching
+  const normalizedExclude = exclude.map(p => p.replace(/\\/g, '/'));
+  const normalizedInclude = include.map(p => p.replace(/\\/g, '/'));
 
   function traverse(currentDir: string) {
     const entries = fs.readdirSync(currentDir, { withFileTypes: true });
@@ -174,14 +190,25 @@ function findMarkdownFiles(dir: string, exclude: string[] = []): string[] {
       const fullPath = path.join(currentDir, entry.name);
       const relativePath = path.relative(dir, fullPath);
 
+      // Normalize path to use forward slashes for consistent matching
+      const normalizedPath = relativePath.replace(/\\/g, '/');
+
       // Check exclusion patterns
-      if (exclude.some(pattern => matchPattern(relativePath, pattern))) {
+      if (normalizedExclude.some(pattern => matchPattern(normalizedPath, pattern))) {
         continue;
       }
 
       if (entry.isDirectory()) {
         traverse(fullPath);
       } else if (entry.isFile() && entry.name.endsWith('.md')) {
+        // Apply include filter if patterns are specified
+        if (normalizedInclude.length > 0) {
+          // File must match at least one include pattern
+          if (!normalizedInclude.some(pattern => matchPattern(normalizedPath, pattern))) {
+            continue;
+          }
+        }
+
         files.push(fullPath);
       }
     }
@@ -357,7 +384,10 @@ async function main() {
   console.log(`  Output Path: ${options.outputPath}`);
   console.log(`  Model: ${options.model}`);
   console.log(`  Batch Size: ${options.batchSize}`);
-  if (options.exclude) {
+  if (options.include && options.include.length > 0) {
+    console.log(`  Include: ${options.include.join(', ')}`);
+  }
+  if (options.exclude && options.exclude.length > 0) {
     console.log(`  Exclude: ${options.exclude.join(', ')}`);
   }
 
@@ -378,7 +408,7 @@ async function main() {
 
   // Find all markdown files
   console.log('\nScanning vault for markdown files...');
-  const files = findMarkdownFiles(options.vaultPath, options.exclude);
+  const files = findMarkdownFiles(options.vaultPath, options.exclude || [], options.include || []);
   console.log(`Found ${files.length} markdown files`);
 
   if (files.length === 0) {
