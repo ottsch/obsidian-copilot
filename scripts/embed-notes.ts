@@ -397,7 +397,7 @@ async function main() {
   // Initialize OpenAI embeddings
   const embeddings = new OpenAIEmbeddings({
     openAIApiKey: options.apiKey,
-    modelName: options.model,
+    model: options.model,
     batchSize: options.batchSize,
     timeout: 10000,
   });
