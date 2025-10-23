@@ -15,6 +15,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import picomatch from 'picomatch';
 import { OpenAIEmbeddings } from '@langchain/openai';
 import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters';
 
@@ -219,18 +220,20 @@ function findMarkdownFiles(
 }
 
 /**
- * Simple pattern matching for file paths
+ * Pattern matching for file paths using picomatch
+ *
+ * Uses the battle-tested picomatch library instead of custom regex
+ * to eliminate ReDoS (Regular Expression Denial of Service) vulnerabilities
  */
 function matchPattern(filePath: string, pattern: string): boolean {
-  // Convert glob-like patterns to regex
-  const regexPattern = pattern
-    .replace(/\./g, '\\.')
-    .replace(/\*\*/g, '.*')
-    .replace(/\*/g, '[^/]*')
-    .replace(/\?/g, '.');
-
-  const regex = new RegExp(`^${regexPattern}$`);
-  return regex.test(filePath);
+  return picomatch.isMatch(filePath, pattern, {
+    // Use forward slashes for consistency (paths are already normalized)
+    format: path => path,
+    // Disable brace expansion for simpler patterns
+    nobrace: false,
+    // Allow ** to match path separators
+    dot: true,
+  });
 }
 
 /**
